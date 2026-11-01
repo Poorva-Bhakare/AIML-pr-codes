@@ -1,0 +1,100 @@
+Name-Bhakare Purva Shivaji
+Roll no-08
+Practical no-4
+
+# Forward Chaining and Backward Chaining
+
+# Facts given by the user
+facts = {"fever", "cough", "body_pain"}
+
+# Rules in the form: IF conditions THEN conclusion
+rules = [
+    ({"fever", "cough"}, "flu"),
+    ({"flu", "body_pain"}, "viral_infection"),
+    ({"cough"}, "respiratory_problem"),
+    ({"fever", "body_pain"}, "infection")
+]
+
+
+# ---------- Forward Chaining ----------
+def forward_chaining(facts, rules):
+    facts = set(facts)
+
+    changed = True
+    while changed:
+        changed = False
+
+        for conditions, conclusion in rules:
+            if conditions.issubset(facts) and conclusion not in facts:
+                facts.add(conclusion)
+                print("Derived:", conclusion)
+                changed = True
+
+    return facts
+
+
+# ---------- Backward Chaining ----------
+def backward_chaining(goal, facts, rules, visited=None):
+    if visited is None:
+        visited = set()
+
+    # Goal is already a known fact
+    if goal in facts:
+        return True
+
+    # Avoid infinite loops
+    if goal in visited:
+        return False
+
+    visited.add(goal)
+
+    # Find a rule that can produce the goal
+    for conditions, conclusion in rules:
+        if conclusion == goal:
+            # Check whether all conditions are true
+            if all(backward_chaining(condition, facts, rules, visited)
+                   for condition in conditions):
+                return True
+
+    return False
+
+print("===== EXPERT SYSTEM =====")
+
+print("\nInitial Facts:")
+print(facts)
+
+print("\n--- Forward Chaining ---")
+final_facts = forward_chaining(facts, rules)
+
+print("\nFinal Facts:")
+print(final_facts)
+
+print("\n--- Backward Chaining ---")
+
+goal = input("\nEnter a goal to check: ")
+
+if backward_chaining(goal, facts, rules):
+    print("Goal", goal, "is TRUE.")
+else:
+    print("Goal", goal, "cannot be proved.")
+
+Output-
+===== EXPERT SYSTEM =====
+
+Initial Facts:
+{'body_pain', 'fever', 'cough'}
+
+--- Forward Chaining ---
+Derived: flu
+Derived: viral_infection
+Derived: respiratory_problem
+Derived: infection
+
+Final Facts:
+{'body_pain', 'flu', 'fever', 'infection', 'respiratory_problem', 'cough', 'viral_infection'}
+
+--- Backward Chaining ---
+
+Enter a goal to check:  flu
+Goal flu is TRUE.
+
